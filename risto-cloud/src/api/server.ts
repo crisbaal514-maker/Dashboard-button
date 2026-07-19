@@ -98,6 +98,11 @@ export async function createServer(opts: ServerOptions): Promise<AppInstance> {
     wildcard: false,    // Don't override API routes
   });
 
+  // ── Dashboard root ───────────────────────────────────────
+  fastify.get('/', async (_req, reply) => {
+    return reply.sendFile('index.html');
+  });
+
   // ── Device API Routes ────────────────────────────────────
   await fastify.register(healthRoutes);
 
