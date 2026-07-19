@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# PlatformIO
+firmware/button-ticket/.pio/
+firmware/button-ticket/.vscode/
+
+# SQLite databases (keep data in development)
+risto-cloud/data/*.db
+risto-cloud/data/*.db-wal
+risto-cloud/data/*.db-shm
+
+# Coverage
+coverage/

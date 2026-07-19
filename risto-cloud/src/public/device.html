@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risto Cloud — Device Detail</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header>
+    <h1><span>Risto</span> Cloud</h1>
+    <a href="/" class="back-link">&larr; Back to devices</a>
+  </header>
+
+  <main>
+    <!-- Info -->
+    <div class="card" id="deviceInfo">
+      <div class="card-header">
+        <span class="card-title" id="deviceName">—</span>
+        <span id="deviceStatus"></span>
+      </div>
+      <dl class="detail-grid">
+        <dt>Device ID</dt><dd id="deviceId">—</dd>
+        <dt>Hardware ID</dt><dd id="hardwareId">—</dd>
+        <dt>Model</dt><dd id="model">—</dd>
+        <dt>Firmware</dt><dd id="firmwareVersion">—</dd>
+        <dt>IP</dt><dd id="lastIp">—</dd>
+        <dt>RSSI</dt><dd id="lastRssi">—</dd>
+        <dt>Uptime</dt><dd id="uptime">—</dd>
+        <dt>Last seen</dt><dd id="lastSeenAt">—</dd>
+        <dt>Created</dt><dd id="createdAt">—</dd>
+      </dl>
+    </div>
+
+    <!-- Commands -->
+    <div class="card">
+      <div class="card-title mb-8">Commands</div>
+      <div class="commands-bar">
+        <button class="btn btn-restart" data-command="restart">⟳ Restart</button>
+        <button class="btn btn-ping" data-command="ping">◉ Ping</button>
+        <button class="btn btn-factory" data-command="factoryReset">⚠ Factory Reset</button>
+      </div>
+      <div id="commandStatus" class="text-muted text-sm">Ready</div>
+    </div>
+
+    <!-- Recent Heartbeats -->
+    <div class="card">
+      <div class="card-title mb-8">Recent Heartbeats</div>
+      <table>
+        <thead>
+          <tr><th>Time</th><th>#</th><th>RSSI</th><th>IP</th><th>Uptime</th></tr>
+        </thead>
+        <tbody id="heartbeatTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Command History -->
+    <div class="card">
+      <div class="card-title mb-8">Command History</div>
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Type</th><th>Status</th><th>Error</th></tr>
+        </thead>
+        <tbody id="commandTable"></tbody>
+      </table>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card">
+      <div class="card-title mb-8">Timeline</div>
+      <ul class="timeline" id="timeline"></ul>
+    </div>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/device.js"></script>
+</body>
+</html>

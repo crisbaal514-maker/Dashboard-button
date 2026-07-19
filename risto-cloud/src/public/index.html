@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risto Cloud — Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div id="pilotBanner" class="pilot-banner" style="display:none">
+    <span class="pilot-dot">🟢</span>
+    <span class="pilot-label">Pilot Running</span>
+    <span id="pilotTimer" class="pilot-timer">0h 00m</span>
+    <span class="pilot-divider">·</span>
+    <span>HB: <span id="pilotHeartbeats">0</span></span>
+    <span class="pilot-divider">·</span>
+    <span>Re: <span id="pilotReconnects">0</span></span>
+    <span class="pilot-divider">·</span>
+    <span>RS: <span id="pilotRestarts">0</span></span>
+    <span class="pilot-divider">·</span>
+    <span class="pilot-rssi">📶 <span id="pilotRssi">—</span></span>
+  </div>
+
+  <header>
+    <h1><span>Risto</span> Cloud</h1>
+    <div class="summary" id="summary">
+      <span id="totalDevices">—</span> devices
+      · <span class="online" id="onlineCount">—</span> online
+      · <span class="offline" id="offlineCount">—</span> offline
+      · <span id="pendingCmd">—</span> pending
+    </div>
+  </header>
+
+  <main id="deviceList"></main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+RP-1003J — Dashboard: COMPLETADO
+=================================
+
+Arquitectura
+------------
+- API pública (v1/devices/*) separada de API de administración (/admin/api/*)
+- 5 casos de uso en src/application/admin/ siguiendo la misma filosofía que Device API
+- Frontend sin framework (HTML + CSS + JS vanilla)
+- Fastify sirve estáticos + API desde el mismo server
+- @fastify/static instalado
+
+Endpoints nuevos
+----------------
+GET  /admin/api/summary           → { devices, online, offline, pendingCommands, failedCommands }
+GET  /admin/api/devices           → Lista con último heartbeat
+GET  /admin/api/devices/:id       → Detalle + últimos 10 heartbeats
+GET  /admin/api/devices/:id/events   → Timeline (eventos + heartbeats + comandos)
+GET  /admin/api/devices/:id/commands → Historial de comandos
+POST /admin/api/commands          → Crear comando (igual que v1 pero desde admin)
+
+Frontend (src/public/)
+---------------------
+index.html    → Lista de dispositivos (poll cada 10s)
+device.html   → Detalle + comandos + heartbeats + timeline (poll 2s/3s/5s)
+styles.css    → Tema oscuro minimalista
+app.js        → Lógica de lista (fetch + render + toast)
+device.js     → Lógica de detalle (polling diferenciado + comando)
+
+Polling diferenciado
+--------------------
+Lista:      10s (los dispositivos no aparecen/desaparecen constantemente)
+Detalle:    2s (solo si la pantalla está abierta)
+Timeline:   3s
+Comandos:   5s

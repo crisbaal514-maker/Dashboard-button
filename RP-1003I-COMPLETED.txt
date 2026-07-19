@@ -1,0 +1,31 @@
+RP-1003I — Comandos Remotos: COMPLETADO
+========================================
+
+Backend (risto-cloud):
+  ✓ CommandStatus.ts — enum compartido TypeScript
+  ✓ SysadminTool.ts — createCommand para admin
+  ✓ GetPendingCommandsUseCase.ts — obtiene + marca DELIVERED
+  ✓ CreateCommandRequest/Response.ts — contratos
+  ✓ AckCommandRequest.ts — ACK del dispositivo
+  ✓ routes/commands.ts — POST create + POST :id/ack
+  ✓ HeartbeatResponse.ts — incluye pendingCommands[]
+  ✓ server.ts — registra commandRoutes
+  ✓ Bootstrap.ts — wirea CreateCommandUseCase + ProcessAckUseCase
+  ✓ auth.ts plugin corregido (solo fastify.authenticate decorator)
+
+Firmware (button-ticket):
+  ✓ CommandStatus.h — enum C++ sincronizado con backend
+  ✓ Command.h — struct con id, type, payload
+  ✓ CommandDispatcher.h/.cpp — restart, ping, factoryReset + tabla extensible
+  ✓ CloudClient.h — incluye CommandDispatcher + sendAck() + processPendingCommands()
+  ✓ CloudClient.cpp — parsea heartbeat 200, ejecuta comandos, envía ACK
+  ✓ platformio.ini — agrega -Isrc/commands
+  ✓ Application.cpp — ackPath en cloudConfig
+
+Flujo completo:
+  1. Admin → POST /v1/commands → servidor guarda PENDING
+  2. Dispositivo envía heartbeat → servidor responde 200 con pendingCommands[]
+  3. CloudClient.parsea JSON manualmente → construye Command
+  4. CommandDispatcher.execute() según tipo (restart, ping, factoryReset)
+  5. CloudClient.sendAck() → POST /v1/devices/commands/:id/ack
+  6. Servidor marca COMPLETED/FAILED/REJECTED

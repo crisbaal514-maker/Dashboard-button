@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "button-ticket",
+			"path": "../../Documents/PlatformIO/Projects/button-ticket"
+		}
+	],
+	"settings": {}
+}
