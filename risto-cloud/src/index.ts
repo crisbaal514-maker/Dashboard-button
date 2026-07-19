@@ -23,6 +23,7 @@ async function main(): Promise<void> {
 
     logger.info({ port, host }, 'Risto Cloud HTTP server is listening');
   } catch (error) {
+    console.error('[FATAL] Failed to start Risto Cloud:', error);
     logger.error({ error }, 'Failed to start Risto Cloud');
     process.exit(1);
   }

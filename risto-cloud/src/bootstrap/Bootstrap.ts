@@ -1,3 +1,5 @@
+import { mkdirSync, existsSync } from 'fs';
+import { dirname } from 'path';
 import { Container } from './Container.js';
 import { EnvProvider } from '../config/EnvProvider.js';
 import type { ConfigProvider } from '../config/ConfigProvider.js';
@@ -50,8 +52,16 @@ export async function bootstrap(): Promise<Container> {
   container.register<IEventBus>('eventBus', eventBus);
   logger.info('Event bus initialized');
 
-  // 4. Storage (SQLite)
+  // 3b. Ensure data directory exists (Railway needs this)
   const dbPath = config.get('DB_PATH', './data/risto-cloud.db');
+  const dbDir = dirname(dbPath);
+  if (!existsSync(dbDir)) {
+    mkdirSync(dbDir, { recursive: true });
+    console.error(`[Bootstrap] Created data directory: ${dbDir}`);
+    logger.info({ dbDir }, 'Created data directory');
+  }
+
+  // 4. Storage (SQLite)
   const storage = new StorageProvider(dbPath);
   container.register<StorageProvider>('storage', storage);
   logger.info({ dbPath }, 'Storage provider initialized');
