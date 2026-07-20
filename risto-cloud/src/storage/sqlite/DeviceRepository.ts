@@ -14,6 +14,7 @@ export class DeviceRepository implements IDeviceRepository {
   private stmtDelete: Database.Statement;
   private stmtListOnline: Database.Statement;
   private stmtListAll: Database.Statement;
+  private stmtMarkStaleOffline: Database.Statement;
 
   constructor(private db: DatabaseWrapper) {
     const raw = db.getRaw();
@@ -33,6 +34,10 @@ export class DeviceRepository implements IDeviceRepository {
       'SELECT * FROM devices WHERE is_online = 1 ORDER BY updated_at DESC',
     );
     this.stmtListAll = raw.prepare('SELECT * FROM devices ORDER BY created_at DESC');
+    this.stmtMarkStaleOffline = raw.prepare(
+      `UPDATE devices SET is_online = 0, updated_at = datetime('now')
+       WHERE is_online = 1 AND last_seen_at IS NOT NULL AND last_seen_at < ?`,
+    );
   }
 
   create(input: CreateDeviceInput): DeviceRow {
@@ -97,6 +102,11 @@ export class DeviceRepository implements IDeviceRepository {
   listAll(): DeviceRow[] {
     const rows = this.stmtListAll.all() as Record<string, unknown>[];
     return rows.map(this.mapRow);
+  }
+
+  markStaleOffline(cutoffIso: string): number {
+    const result = this.stmtMarkStaleOffline.run(cutoffIso);
+    return result.changes;
   }
 
   private mapRow(row: Record<string, unknown>): DeviceRow {

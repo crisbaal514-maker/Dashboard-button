@@ -40,4 +40,10 @@ export interface IDeviceRepository {
   delete(id: string): boolean;
   listOnline(): DeviceRow[];
   listAll(): DeviceRow[];
+
+  /**
+   * Mark as OFFLINE all devices whose last_seen_at is older than the given cutoff.
+   * Returns the number of devices that were marked offline.
+   */
+  markStaleOffline(cutoffIso: string): number;
 }

@@ -20,6 +20,7 @@ import { GetDeviceDetailUseCase } from '../application/admin/GetDeviceDetailUseC
 import { GetDeviceTimelineUseCase } from '../application/admin/GetDeviceTimelineUseCase.js';
 import { GetCommandHistoryUseCase } from '../application/admin/GetCommandHistoryUseCase.js';
 import { CleanupUseCase } from '../application/maintenance/CleanupUseCase.js';
+import { StaleDeviceUseCase } from '../application/maintenance/StaleDeviceUseCase.js';
 import { createServer } from '../api/server.js';
 import type { AppInstance } from '../api/server.js';
 import { Scheduler } from '../core/Scheduler.js';
@@ -88,6 +89,9 @@ export async function bootstrap(): Promise<Container> {
   const cleanupUseCase = new CleanupUseCase(storage);
   container.register<CleanupUseCase>('cleanupUseCase', cleanupUseCase);
 
+  const staleDeviceUseCase = new StaleDeviceUseCase(storage);
+  container.register<StaleDeviceUseCase>('staleDeviceUseCase', staleDeviceUseCase);
+
   // 8. Use Cases — Admin / Dashboard
   const getSummaryUseCase = new GetSummaryUseCase(storage);
   container.register<GetSummaryUseCase>('getSummaryUseCase', getSummaryUseCase);
@@ -107,7 +111,7 @@ export async function bootstrap(): Promise<Container> {
   logger.info('Use cases registered');
 
   // 9. Scheduler (background jobs)
-  const scheduler = bootstrapScheduler(cleanupUseCase);
+  const scheduler = bootstrapScheduler(cleanupUseCase, staleDeviceUseCase);
   container.register<Scheduler>('scheduler', scheduler);
   scheduler.start();
   logger.info('Scheduler started');
