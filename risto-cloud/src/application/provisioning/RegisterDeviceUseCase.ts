@@ -32,11 +32,13 @@ export class RegisterDeviceUseCase {
   ) {}
 
   async execute(request: RegisterRequest): Promise<RegisterResponse> {
-    const deviceId = generateId();
     const now = this.clock.now();
 
     // Check for existing device by hardwareId
     const existing = this.storage.devices.findByHardwareId(request.hardwareId);
+
+    // Determine deviceId: reuse existing if found, otherwise generate new
+    const deviceId = existing ? existing.id : generateId();
 
     logger.info(
       { hardwareId: request.hardwareId, deviceId, existing: !!existing },
@@ -46,19 +48,26 @@ export class RegisterDeviceUseCase {
     // Execute registration inside a transaction
     // NOTE: better-sqlite3 is synchronous — no async/await inside transaction()
     this.storage.transactionSync((tx: StorageProvider) => {
-      // If device already exists, delete it first (clean slate)
       if (existing) {
+        // Device already exists — reuse it (preserve deviceId for stability)
+        // Revoke old tokens so new ones can be issued
         tx.tokens.revokeAllForDevice(existing.id);
-        tx.devices.delete(existing.id);
-      }
 
-      // Create the device
-      tx.devices.create({
-        id: deviceId,
-        hardwareId: request.hardwareId,
-        model: request.model,
-        firmwareVersion: request.firmware,
-      });
+        // Update firmware version and mark online
+        tx.devices.update(existing.id, {
+          firmwareVersion: request.firmware,
+          isOnline: true,
+          lastSeenAt: now.toISOString(),
+        });
+      } else {
+        // New device — create fresh record
+        tx.devices.create({
+          id: deviceId,
+          hardwareId: request.hardwareId,
+          model: request.model,
+          firmwareVersion: request.firmware,
+        });
+      }
     });
 
     // Issue token pair (handles its own transaction internally)
@@ -70,6 +79,7 @@ export class RegisterDeviceUseCase {
       hardwareId: string;
       model: string;
       firmwareVersion: string;
+      reRegistered: boolean;
     }> = {
       type: DeviceEventType.Registered,
       occurredAt: now,
@@ -78,12 +88,13 @@ export class RegisterDeviceUseCase {
         hardwareId: request.hardwareId,
         model: request.model,
         firmwareVersion: request.firmware,
+        reRegistered: !!existing,
       },
     };
 
     this.eventBus.emit(event.type, event);
 
-    logger.info({ deviceId }, 'RegisterDeviceUseCase: completed');
+    logger.info({ deviceId, reRegistered: !!existing }, 'RegisterDeviceUseCase: completed');
 
     return {
       deviceId,
