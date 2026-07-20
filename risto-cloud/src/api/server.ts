@@ -89,21 +89,7 @@ export async function createServer(opts: ServerOptions): Promise<AppInstance> {
 
   await fastify.register(authPlugin, { authProvider });
 
-  // ── Static files (Dashboard) ─────────────────────────────
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  const publicPath = path.resolve(__dirname, '..', 'public');
-  await fastify.register(fastifyStatic, {
-    root: publicPath,
-    prefix: '/',
-    wildcard: false,    // Don't override API routes
-  });
-
-  // ── Dashboard root ───────────────────────────────────────
-  fastify.get('/', async (_req, reply) => {
-    return reply.sendFile('index.html');
-  });
-
-  // ── Device API Routes ────────────────────────────────────
+  // ── Device API Routes (registered first → higher priority) ──
   await fastify.register(healthRoutes);
 
   // Device routes get stricter body limits per route
@@ -146,8 +132,18 @@ export async function createServer(opts: ServerOptions): Promise<AppInstance> {
     { bodyLimit: 8192 }, // Admin commands: max 8 KB
   );
 
+  // ── Static files (Dashboard) — catch-all ──────────────────
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+  const publicPath = path.resolve(__dirname, '..', 'public');
+  await fastify.register(fastifyStatic, {
+    root: publicPath,
+    prefix: '/',
+    wildcard: true,
+  });
+
   // ── Shutdown ─────────────────────────────────────────────
   const shutdown = async () => {
+
     logger.info('Shutting down HTTP server...');
     await fastify.close();
   };
